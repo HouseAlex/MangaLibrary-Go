@@ -86,6 +86,7 @@ func main() {
 	//router.GET("/get-manga/:id", getManga)
 	router.POST("/add-manga", addManga)
 	router.POST("/add-user", addUser)
+	router.GET("get-user/:id", getUser)
 
 	router.Run("localhost:8080")
 }
@@ -145,6 +146,21 @@ func addUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	c.JSON(http.StatusOK, id)
+}
+
+func getUser(c *gin.Context) {
+	var user UserDbRow
+	id := c.Param("id")
+
+	row := db.QueryRowContext(
+		context.Background(),
+		`SELECT * FROM users WHERE id=?`, id,
+	)
+	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, user)
 }
 
 func initDatabase(dbPath string) error {
