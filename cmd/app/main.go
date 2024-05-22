@@ -42,11 +42,6 @@ func main() {
 	router.Run("localhost:8080")
 }
 
-/*func getManga(c *gin.Context) {
-	//id := c.Param("id")
-	c.IndentedJSON(http.StatusOK, mangas)
-}*/
-
 func initDatabase(dbPath string) error {
 	var err error
 	db, err = sql.Open("sqlite", dbPath)
