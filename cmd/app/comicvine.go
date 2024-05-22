@@ -1,5 +1,7 @@
 package main
 
+//! THIS CODE MIGHT NOT BE NEEDED, TO BE IMPLEMENTED ON FRONT END
+
 import (
 	"fmt"
 	"net/http"
@@ -21,7 +23,7 @@ func getComicVineSearchData(mangaName string) (*CvMedia, error) {
 	})
 	var key = os.Getenv("CV_API_KEY")
 
-	uri := "search/?api_key=" + key + "&format=json&query={manga_name}&resources=volume"
+	uri := fmt.Sprintf("search/?api_key=%s&format=json&query=%s&resources=volume", key, mangaName)
 	err := comicVineQuery(uri, response)
 
 	if err != nil {
