@@ -59,13 +59,12 @@ func getAnilistData(mangaName string) (*AlMedia, error) {
 						description
 						type
 						volumes
-						staff(sort:RELEVANCE, page:1, perPage:1) {
+						staff(page:1, perPage:1) {
 						nodes {
 							id
 							name {
 								full
 							}
-							primaryOccupations
 						}
 						}
 						coverImage {
