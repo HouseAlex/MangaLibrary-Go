@@ -13,19 +13,6 @@ import (
 
 var db *sql.DB
 
-// Test Data
-/*
-var users = []User{
-	{Username: "Wallu", FirstName: "Alex", LastName: "House"},
-	{Username: "Lurk390", FirstName: "Mahmoud", LastName: "Elbasiouny"},
-}
-
-var mangas = []Manga{
-	{Title: "Berserk", Author: "Kentarou Miura", Publisher: "Dark Horse", Status: "Active", Year: 2000, Description: "blah blah", NumberOfVolumes: 12, CoverImage: "blah blah", URL: "https://anilist.co/manga/30002/Berserk"},
-	{Title: "Chainsaw Man", Author: "Tatsuki Fujimoto", Publisher: "Dark Horse", Status: "Active", Year: 2019, Description: "blah blah", NumberOfVolumes: 16, CoverImage: "blah blah", URL: "https://anilist.co/manga/105778/Chainsaw-Man/"},
-	{Title: "Vinland Saga", Author: "Makoto Yukimura", Publisher: "Dark Horse", Status: "Active", Year: 2016, Description: "blah blah", NumberOfVolumes: 14, CoverImage: "blah blah", URL: "https://anilist.co/anime/101348/Vinland-Saga/"},
-}*/
-
 func main() {
 	// Load .env file
 	err := godotenv.Load("../../.env")
@@ -108,3 +95,16 @@ func initDatabase(dbPath string) error {
 	}
 	return nil
 }
+
+// Test Data
+/*
+var users = []User{
+	{Username: "Wallu", FirstName: "Alex", LastName: "House"},
+	{Username: "Lurk390", FirstName: "Mahmoud", LastName: "Elbasiouny"},
+}
+
+var mangas = []Manga{
+	{Title: "Berserk", Author: "Kentarou Miura", Publisher: "Dark Horse", Status: "Active", Year: 2000, Description: "blah blah", NumberOfVolumes: 12, CoverImage: "blah blah", URL: "https://anilist.co/manga/30002/Berserk"},
+	{Title: "Chainsaw Man", Author: "Tatsuki Fujimoto", Publisher: "Dark Horse", Status: "Active", Year: 2019, Description: "blah blah", NumberOfVolumes: 16, CoverImage: "blah blah", URL: "https://anilist.co/manga/105778/Chainsaw-Man/"},
+	{Title: "Vinland Saga", Author: "Makoto Yukimura", Publisher: "Dark Horse", Status: "Active", Year: 2016, Description: "blah blah", NumberOfVolumes: 14, CoverImage: "blah blah", URL: "https://anilist.co/anime/101348/Vinland-Saga/"},
+}*/

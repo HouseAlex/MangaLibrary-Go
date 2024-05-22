@@ -8,25 +8,6 @@ import (
 	"github.com/aerogo/http/client"
 )
 
-func anilistQuery(body interface{}, target interface{}) error {
-	var headers = client.Headers{
-		"Content-Type": "application/json",
-		"Accept":       "application/json",
-	}
-
-	response, err := client.Post("https://graphql.anilist.co").Headers(headers).BodyJSON(body).EndStruct(target)
-
-	if err != nil {
-		return err
-	}
-
-	if response.StatusCode() != http.StatusOK {
-		return fmt.Errorf("status: %d\n%s", response.StatusCode(), response.String())
-	}
-
-	return nil
-}
-
 type StaffNodes struct {
 	ID   int `json:"id"`
 	Name struct {
@@ -118,6 +99,25 @@ func getAnilistData(mangaName string) (*AlMedia, error) {
 	}
 
 	return response.Data.Media, nil
+}
+
+func anilistQuery(body interface{}, target interface{}) error {
+	var headers = client.Headers{
+		"Content-Type": "application/json",
+		"Accept":       "application/json",
+	}
+
+	response, err := client.Post("https://graphql.anilist.co").Headers(headers).BodyJSON(body).EndStruct(target)
+
+	if err != nil {
+		return err
+	}
+
+	if response.StatusCode() != http.StatusOK {
+		return fmt.Errorf("status: %d\n%s", response.StatusCode(), response.String())
+	}
+
+	return nil
 }
 
 func parsePublisher(description string) (string, error) {
