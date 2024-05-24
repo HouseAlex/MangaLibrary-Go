@@ -156,7 +156,7 @@ func getUserVolume(volumeID int, userID int) (*UserToVolume, error) {
 }
 
 func getUserMangaVolumes(c *gin.Context) {
-	var volumes []UserToVolume
+	var volumes []UserToVolume //! Probably want to make this custom return object
 	userId := c.Param("userId")
 	mangaId := c.Param("mangaId")
 
