@@ -34,11 +34,13 @@ func main() {
 	// Gin Router initialization
 	router := gin.Default()
 	//router.GET("/get-manga/:id", getManga)
-	router.POST("/add-manga", addManga)
-	router.POST("/add-user", addUser)
-	router.POST("/add-users-volumes", addUsersVolumes)
-	router.GET("get-user/:id", getUser)
-	router.GET("get-manga/:id", getManga)
+	router.POST("manga", addManga)
+	router.POST("user", addUser)
+	router.POST("user/volumes", addUsersVolumes)
+	router.GET("user/:userId", getUser)
+	router.GET("user/:userId/manga/:mangaId", getUserMangaVolumes)
+	router.GET("manga/:mangaId", getManga)
+	router.GET("manga/:mangaId/volumes", getMangaVolumes)
 
 	router.Run("localhost:8080")
 }

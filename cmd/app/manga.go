@@ -134,32 +134,13 @@ func addVolumes(mangaId int64, volumes int) error {
 
 func getManga(c *gin.Context) {
 	var manga Manga
-	id := c.Param("id")
+	id := c.Param("mangaId")
 
 	err := db.GetContext(
 		context.Background(),
 		&manga,
 		`SELECT * FROM manga WHERE id=?`, id,
 	)
-	/*
-		row := db.QueryRowContext(
-			context.Background(),
-			`SELECT * FROM manga WHERE id=?`, id,
-		)
-		err := row.Scan(
-			&manga.ID,
-			&manga.AniListID,
-			&manga.ComicVineID,
-			&manga.Title,
-			&manga.Author,
-			&manga.Publisher,
-			&manga.Status,
-			&manga.Year,
-			&manga.Description,
-			&manga.NumberOfVolumes,
-			&manga.CoverImage,
-			&manga.URL,
-		)*/
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -169,24 +150,11 @@ func getManga(c *gin.Context) {
 func getMangaFromComicVine(cvId int) (*Manga, error) {
 	var manga Manga
 
-	row := db.QueryRowContext(
+	err := db.GetContext(
 		context.Background(),
+		&manga,
 		`SELECT * FROM manga WHERE comicvineId=?`,
 		cvId,
-	)
-	err := row.Scan(
-		&manga.ID,
-		&manga.AniListID,
-		&manga.ComicVineID,
-		&manga.Title,
-		&manga.Author,
-		&manga.Publisher,
-		&manga.Status,
-		&manga.Year,
-		&manga.Description,
-		&manga.NumberOfVolumes,
-		&manga.CoverImage,
-		&manga.URL,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -197,7 +165,18 @@ func getMangaFromComicVine(cvId int) (*Manga, error) {
 	return &manga, nil
 }
 
-/*func getMangaVolumes(c *gin.Context) {
-	var volumes []VolumeDbRow
-	MangaID := c.Param("id")
-}*/
+func getMangaVolumes(c *gin.Context) {
+	var volumes []Volume
+	MangaID := c.Param("mangaId")
+
+	err := db.SelectContext(
+		context.Background(),
+		&volumes,
+		`SELECT * FROM volumes WHERE mangaId = ?`,
+		MangaID,
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, volumes)
+}

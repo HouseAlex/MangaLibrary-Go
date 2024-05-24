@@ -51,13 +51,13 @@ func addUser(c *gin.Context) {
 
 func getUser(c *gin.Context) {
 	var user User
-	id := c.Param("id")
+	id := c.Param("userId")
 
-	row := db.QueryRowContext(
+	err := db.GetContext(
 		context.Background(),
+		&user,
 		`SELECT * FROM users WHERE id=?`, id,
 	)
-	err := row.Scan(&user.ID, &user.Username, &user.FirstName, &user.LastName)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
@@ -84,11 +84,14 @@ func addUsersVolumes(c *gin.Context) {
 		args[i] = id
 	}
 
-	// Create query string
-	query := fmt.Sprintf("SELECT * FROM Volumes WHERE mangaId = (%d) and id in (%s)", body.MangaId, strings.Join(placeholders, ", "))
+	var volumes []Volume
 
-	rows, err := db.QueryContext(
+	// Create query string
+	query := fmt.Sprintf("SELECT * FROM Volumes WHERE mangaId = %d and volumenumber in (%s)", body.MangaId, strings.Join(placeholders, ", "))
+
+	err := db.SelectContext(
 		context.Background(),
+		&volumes,
 		query,
 		args...,
 	)
@@ -96,15 +99,9 @@ func addUsersVolumes(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	defer rows.Close()
 
-	for rows.Next() {
-		var vol Volume
-		err := rows.Scan(&vol.ID, &vol.MangaID, &vol.VolumeNumber)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
+	for i, vol := range volumes {
+		c.JSON(http.StatusOK, vol)
 
 		userVolDb, err := getUserVolume(vol.ID, body.UserId)
 		if err != nil {
@@ -132,22 +129,22 @@ func addUsersVolumes(c *gin.Context) {
 				c.JSON(http.StatusBadRequest, gin.H{"error": "result was empty."})
 			}
 		}
+
+		if i == len(body.Volumes) {
+			c.JSON(http.StatusOK, i)
+		}
 	}
 }
 
 func getUserVolume(volumeID int, userID int) (*UserToVolume, error) {
 	var userVolume UserToVolume
 
-	row := db.QueryRowContext(
+	err := db.GetContext(
 		context.Background(),
+		&userVolume,
 		`SELECT * FROM usertovolumes WHERE userid = ? AND volumeid = ?`,
 		userID,
 		volumeID,
-	)
-	err := row.Scan(
-		&userVolume.ID,
-		&userVolume.UserID,
-		&userVolume.VolumeID,
 	)
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -156,4 +153,25 @@ func getUserVolume(volumeID int, userID int) (*UserToVolume, error) {
 	}
 
 	return &userVolume, nil
+}
+
+func getUserMangaVolumes(c *gin.Context) {
+	var volumes []UserToVolume
+	userId := c.Param("userId")
+	mangaId := c.Param("mangaId")
+
+	err := db.SelectContext(
+		context.Background(),
+		&volumes,
+		`SELECT utv.* FROM usertovolumes utv
+		JOIN volumes v on utv.volumeid = v.id
+		WHERE v.mangaId = ? AND utv.userid = ?`,
+		mangaId,
+		userId,
+	)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, volumes)
 }
