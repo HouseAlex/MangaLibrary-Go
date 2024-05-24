@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"github.com/joho/godotenv"
 	_ "modernc.org/sqlite"
 )
 
-var db *sql.DB
+var db *sqlx.DB
 
 func main() {
 	// Load .env file
@@ -34,17 +34,20 @@ func main() {
 	// Gin Router initialization
 	router := gin.Default()
 	//router.GET("/get-manga/:id", getManga)
-	router.POST("/add-manga", addManga)
-	router.POST("/add-user", addUser)
-	router.GET("get-user/:id", getUser)
-	router.GET("get-manga/:id", getManga)
+	router.POST("manga", addManga)
+	router.POST("user", addUser)
+	router.POST("user/volumes", addUsersVolumes)
+	router.GET("user/:userId", getUser)
+	router.GET("user/:userId/manga/:mangaId", getUserMangaVolumes)
+	router.GET("manga/:mangaId", getManga)
+	router.GET("manga/:mangaId/volumes", getMangaVolumes)
 
 	router.Run("localhost:8080")
 }
 
 func initDatabase(dbPath string) error {
 	var err error
-	db, err = sql.Open("sqlite", dbPath)
+	db, err = sqlx.Open("sqlite", dbPath)
 	if err != nil {
 		return err
 	}
@@ -75,14 +78,14 @@ func initDatabase(dbPath string) error {
 		
 		CREATE TABLE IF NOT EXISTS Volumes (
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,
-			MangaID INTEGER NOT NULL REFERENCES MangaInfo(MangaID),
+			MangaID INTEGER NOT NULL REFERENCES MangaInfo(ID),
 			VolumeNumber INTEGER NOT NULL
 		);
 		
 		CREATE TABLE IF NOT EXISTS UserToVolumes (
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,
-			UserID INTEGER NOT NULL REFERENCES Users(UserID),
-			VolumeID INTEGER NOT NULL REFERENCES Volumes(VolumeID)
+			UserID INTEGER NOT NULL REFERENCES Users(ID),
+			VolumeID INTEGER NOT NULL REFERENCES Volumes(ID)
 		);`,
 	)
 	if err != nil {
