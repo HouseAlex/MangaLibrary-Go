@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,12 +16,16 @@ type User struct {
 	Username  string `json:"userName" db:"Username"`
 	FirstName string `json:"firstName" db:"FirstName"`
 	LastName  string `json:"lastName" db:"LastName"`
+	IsActive  bool   `json:"isActive" db:"IsActive"`
+	CreatedOn string `json:"createdOn" db:"CreatedOn"`
 }
 
 type UserToVolume struct {
-	ID       int `json:"id" db:"ID"`
-	UserID   int `json:"userId" db:"UserID"`
-	VolumeID int `json:"volumeId" db:"VolumeID"`
+	ID        int    `json:"id" db:"ID"`
+	UserID    int    `json:"userId" db:"UserID"`
+	VolumeID  int    `json:"volumeId" db:"VolumeID"`
+	IsActive  bool   `json:"isActive" db:"IsActive"`
+	CreatedOn string `json:"createdOn" db:"CreatedOn"`
 }
 
 func addUser(c *gin.Context) {
@@ -30,13 +35,14 @@ func addUser(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	currentTime := time.Now().Format("2006-01-02")
 
 	result, err := db.ExecContext(
 		context.Background(),
 		`INSERT INTO users 
-		(username, firstname, lastname) 
-		VALUES (?, ?, ?)`,
-		u.Username, u.FirstName, u.LastName,
+		(username, firstname, lastname, isactive, createdon) 
+		VALUES (?, ?, ?, ?, ?)`,
+		u.Username, u.FirstName, u.LastName, true, currentTime,
 	)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -100,6 +106,8 @@ func addUsersVolumes(c *gin.Context) {
 		return
 	}
 
+	currentTime := time.Now().Format("2006-01-02")
+
 	for i, vol := range volumes {
 		c.JSON(http.StatusOK, vol)
 
@@ -115,11 +123,15 @@ func addUsersVolumes(c *gin.Context) {
 				`INSERT INTO usertovolumes
 				(
 					userid,
-					volumeid
+					volumeid,
+					isactive,
+					createdon
 				)
-				VALUES (?, ?)`,
+				VALUES (?, ?, ?, ?)`,
 				body.UserId,
 				vol.ID,
+				true,
+				currentTime,
 			)
 			if err != nil {
 				c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

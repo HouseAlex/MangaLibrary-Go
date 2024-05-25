@@ -57,7 +57,9 @@ func initDatabase(dbPath string) error {
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,
 			Username TEXT NOT NULL UNIQUE,
 			FirstName TEXT NOT NULL,
-			LastName TEXT NOT NULL
+			LastName TEXT NOT NULL,
+			IsActive BIT NOT NULL,
+			CreatedOn TEXT NOT NULL
 		);
 		
 		CREATE TABLE IF NOT EXISTS Manga (
@@ -73,19 +75,25 @@ func initDatabase(dbPath string) error {
 			Description TEXT,
 			NumberOfVolumes INTEGER,
 			CoverImage TEXT,
-			URL TEXT
+			URL TEXT,
+			IsActive BIT NOT NULL,
+			CreatedOn TEXT NOT NULL
 		);
 		
 		CREATE TABLE IF NOT EXISTS Volumes (
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,
 			MangaID INTEGER NOT NULL REFERENCES MangaInfo(ID),
-			VolumeNumber INTEGER NOT NULL
+			VolumeNumber INTEGER NOT NULL,
+			IsActive BIT NOT NULL,
+			CreatedOn TEXT NOT NULL
 		);
 		
 		CREATE TABLE IF NOT EXISTS UserToVolumes (
 			ID INTEGER PRIMARY KEY AUTOINCREMENT,
 			UserID INTEGER NOT NULL REFERENCES Users(ID),
-			VolumeID INTEGER NOT NULL REFERENCES Volumes(ID)
+			VolumeID INTEGER NOT NULL REFERENCES Volumes(ID),
+			IsActive BIT NOT NULL,
+			CreatedOn TEXT NOT NULL
 		);`,
 	)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,12 +22,16 @@ type Manga struct {
 	NumberOfVolumes int    `json:"numberOfVolumes" db:"NumberOfVolumes"`
 	CoverImage      string `json:"coverImage" db:"CoverImage"`
 	URL             string `json:"url" db:"URL"`
+	IsActive        bool   `json:"isActive" db:"IsActive"`
+	CreatedOn       string `json:"createdOn" db:"CreatedOn"`
 }
 
 type Volume struct {
-	ID           int `json:"id" db:"ID"`
-	MangaID      int `json:"mangaId" db:"MangaID"`
-	VolumeNumber int `json:"volumeNumber" db:"VolumeNumber"`
+	ID           int    `json:"id" db:"ID"`
+	MangaID      int    `json:"mangaId" db:"MangaID"`
+	VolumeNumber int    `json:"volumeNumber" db:"VolumeNumber"`
+	IsActive     bool   `json:"isActive" db:"IsActive"`
+	CreatedOn    string `json:"createdOn" db:"CreatedOn"`
 }
 
 func addManga(c *gin.Context) {
@@ -55,6 +60,7 @@ func addManga(c *gin.Context) {
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		}
+		currentTime := time.Now().Format("2006-01-02")
 
 		result, err := db.ExecContext(
 			context.Background(),
@@ -70,9 +76,11 @@ func addManga(c *gin.Context) {
 				description, 
 				numberofvolumes, 
 				coverimage, 
-				url
+				url,
+				isactive,
+				createdon
 			) 
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 			m.ID,
 			body.ComicVineId,
 			m.Title.English,
@@ -84,6 +92,8 @@ func addManga(c *gin.Context) {
 			body.Volumes,
 			m.CoverImage.Large,
 			m.SiteUrl,
+			true,
+			currentTime,
 		)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -108,16 +118,19 @@ func addManga(c *gin.Context) {
 }
 
 func addVolumes(mangaId int64, volumes int) error {
+	currentTime := time.Now().Format("2006-01-02")
 	for i := 1; i <= volumes; i++ {
 		result, err := db.ExecContext(
 			context.Background(),
 			`INSERT INTO volumes
 			(
 				mangaid,
-				volumeNumber
+				volumeNumber,
+				isactive,
+				created
 			)
-			VALUES (?, ?)`,
-			mangaId, i,
+			VALUES (?, ?, ?, ?)`,
+			mangaId, i, true, currentTime,
 		)
 		if err != nil {
 			return err
